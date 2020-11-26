@@ -27,22 +27,22 @@ always @(posedge clk10m_i, negedge rstn_i) begin : count_3bit
             if (!rstn_i) begin
                 count_int <= ival_i;
             end else begin
-                if (count_int < 6) begin 
+                if (count_int < 5) begin 
                     count_int <= count_int+1; 
                 end else begin
                     count_int <= 0; 
                 end
             end
-end;
+end
 
 assign segment_o = {1'b0,count_int};// since max value 6. 4th bit is unused
 
 //xx:mx counter clock
 always @(posedge clk10m_i, negedge rstn_i) begin: clk_xxmx
             if (!rstn_i) begin
-                clk60m_o <= 0;
+                clk60m_o <= 1;
             end else begin
-                if (count_int == 6 ) begin 
+                if ((count_int==2) || (count_int==5)) begin 
                     clk60m_o <= ~clk60m_o;
                 end else begin
                     clk60m_o <= clk60m_o;

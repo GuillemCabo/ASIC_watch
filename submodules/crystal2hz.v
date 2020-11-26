@@ -1,6 +1,6 @@
 //-----------------------------------------------------
 // ProjectName: ASIC watch 
-// Description: Clock down  from external crystal to 1Hz
+// Description: Clock down  from external crystal to 0.5Hz
 // Coder      : G.Cabo
 // References :
 //-----------------------------------------------------
@@ -27,12 +27,12 @@ always @(posedge clk_i, negedge rstn_i) begin : count_15bit
             end else begin
                 count_int <= count_int+1;  
             end
-end;
+end
 
 //Clock divider
 always @(posedge clk_i, negedge rstn_i) begin: clk_div
             if (!rstn_i) begin
-                clk_o <= 0;
+                clk_o <= 1;
             end else begin
                 if (&count_int == 1 ) begin // if and reduction is 1
                     clk_o <= ~clk_o;
@@ -40,7 +40,7 @@ always @(posedge clk_i, negedge rstn_i) begin: clk_div
                     clk_o <= clk_o;
                 end
             end
-end;
+end
 
 
 endmodule

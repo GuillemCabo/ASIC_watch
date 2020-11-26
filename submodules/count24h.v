@@ -31,24 +31,24 @@ always @(posedge clk60m_i, negedge rstn_i) begin : count_5bit
     if (!rstn_i) begin
         count_int <= ival_i;
     end else begin
-        if (count_int < 24) begin 
+        if (count_int < 23) begin 
             count_int <= count_int+1; 
         end else begin
             count_int <= 0; 
         end
     end
-end;
+end
 
 
 // -- Get xhxx integer value for 7-segment driver
 //get only meaningful bits
-wire [3:0] xhxx_count;
-assign xhxx_count = count_int[3:0];
+wire [4:0] xhxx_count;
+assign xhxx_count = count_int[4:0];
 
 //A complete LUT would do the same job
 always @(*) begin : xhxx_gen
     // for counter values 0 - 9: Counter value match segment output
-    if (xhxx_count <= 4'h9) begin
+    if (xhxx_count <= 5'h9) begin
         segment0_o = xhxx_count;
     end else begin
     // for counter values 10 - 24: Bit 0 matches the one in  0-9 range
@@ -67,21 +67,21 @@ always @(*) begin : xhxx_gen
             //18 & 19
             3'b001 : segment0_o[3:1] = 3'b100 ;
             //20 & 21
-            3'b011 : segment0_o[3:1] = 3'b000 ;
+            3'b010 : segment0_o[3:1] = 3'b000 ;
             //22 & 23
-            3'b010 : segment0_o[3:1] = 3'b001 ;
+            3'b011 : segment0_o[3:1] = 3'b001 ;
             //24
             3'b100 : segment0_o[3:1] = 3'b010 ;
         endcase
     end
-end;
+end
 //
 
 // -- Get hxxx integer value for 7-segment driver
 // Fill unused bits
-assign segment1_o[3:2] = 2'b0;
 
 always @(*) begin : hxxx_gen
+    segment1_o[3:2] = 2'b0;
     if (count_int < 10  ) begin
         segment1_o[1:0] = 2'b00;
     end else begin
@@ -91,7 +91,7 @@ always @(*) begin : hxxx_gen
             segment1_o[1:0] = 2'b01;
         end
     end
-end;
+end
 
 endmodule
 

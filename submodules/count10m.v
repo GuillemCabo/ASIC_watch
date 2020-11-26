@@ -1,6 +1,6 @@
 //-----------------------------------------------------
 // ProjectName: ASIC watch 
-// Description: 0 - 9 counter. 1 minute increments
+// Description: 0 - 5 counter. 1 minute increments
 // //           It interfaces with 7-segment driver xx:xm
 // Coder      : G.Cabo
 // References :
@@ -33,16 +33,16 @@ always @(posedge clk1m_i, negedge rstn_i) begin : count_4bit
                     count_int <= 0; 
                 end
             end
-end;
+end
 
 assign segment_o = count_int;
 
 //xx:mx counter clock
 always @(posedge clk1m_i, negedge rstn_i) begin: clk_xhxx
             if (!rstn_i) begin
-                clk10m_o <= 0;
+                clk10m_o <= 1;
             end else begin
-                if (count_int == 9 ) begin 
+                if (count_int==4 || count_int==9) begin 
                     clk10m_o <= ~clk10m_o;
                 end else begin
                     clk10m_o <= clk10m_o;

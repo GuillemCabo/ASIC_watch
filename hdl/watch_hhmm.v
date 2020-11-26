@@ -24,7 +24,7 @@ module watch_hhmm (
     output wire [6:0] segment_xxxm
 );
 
-wire clk1s_int;//1 second
+wire clk2s_int;//1 second
 wire clk1m_int;//1 minute
 wire clk10m_int;//10 minutes
 wire clk1h_int;//1 h
@@ -33,12 +33,12 @@ wire clk1h_int;//1 h
 crystal2hz inst_div32768 (
     .rstn_i(rstn_i), 
     .clk_i(clk_i), 
-    .clk_o(clk1s_int)
+    .clk_o(clk2s_int)
 );
 
 count60s inst_div60(
     .rstn_i(rstn_i),
-    .clk_i(clk1s_int), 
+    .clk_i(clk2s_int),  
     .clk60s_o(clk1m_int) 
 );
 //Hardcoded inital value for display counters

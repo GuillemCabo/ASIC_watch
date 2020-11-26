@@ -1,6 +1,6 @@
 //-----------------------------------------------------
 // ProjectName: ASIC watch 
-// Description: 0 - 59 counter. 1 second increments
+// Description: 0 - 14 counter. 2 second increments
 // Coder      : G.Cabo
 // References :
 //-----------------------------------------------------
@@ -20,24 +20,24 @@ module count60s (
 );
 
 //free running counter
-reg [5:0] count_int;
+reg [4:0] count_int;
 always @(posedge clk_i, negedge rstn_i) begin : count_6bit
             if (!rstn_i) begin
                 count_int <= 0;
             end else begin
-                if (count_int < 59) begin 
+                if (count_int < 14) begin 
                     count_int <= count_int+1; 
                 end else begin
                     count_int <= 0; 
                 end
             end
-end;
+end
 
 always @(posedge clk_i, negedge rstn_i) begin: clk_xxxm
             if (!rstn_i) begin
-                clk60s_o <= 0;
+                clk60s_o <= 1;
             end else begin
-                if (count_int == 59 ) begin 
+                if (count_int == 14 ) begin 
                     clk60s_o <= ~clk60s_o;
                 end else begin
                     clk60s_o <= clk60s_o;
