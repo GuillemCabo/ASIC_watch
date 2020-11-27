@@ -1,5 +1,5 @@
 //-----------------------------------------------------
-// ProjectName: ASIC watch 
+// ProjectName: ASIC watch
 // Description: Top level of the desing
 // Coder      : G.Cabo
 // References :
@@ -8,16 +8,17 @@
 `timescale 1 ns / 1 ps
 
 `ifndef SYNT
-    `ifdef FORMAL 
+    `ifdef FORMAL
         `define ASSERTIONS
     `endif
 `endif
 
 module watch_hhmm (
-    input wire clk_i, //32.768 KHz
+    //input wire clk_system_i, //  10 MHz
+    input wire clk_crystal_i, // 32.768 KHz
     input wire rstn_i, // active low
-//    input wire bt0, //TODO
-//    input wire bt1, //TODO
+    input wire bt0, // button adds 1 minute when released
+    input wire bt1, // button adds 1 hour when realeased
     output wire [6:0] segment_hxxx,
     output wire [6:0] segment_xhxx,
     output wire [6:0] segment_xxmx,
@@ -31,37 +32,70 @@ wire clk1h_int;//1 h
 
 // Clock divider
 crystal2hz inst_div32768 (
-    .rstn_i(rstn_i), 
-    .clk_i(clk_i), 
+    .rstn_i(rstn_i),
+    .clk_i(clk_crystal_i),
     .clk_o(clk2s_int)
 );
 
 count60s inst_div60(
     .rstn_i(rstn_i),
-    .clk_i(clk2s_int),  
-    .clk60s_o(clk1m_int) 
+    .clk_i(clk2s_int),
+    .clk60s_o(clk1m_int)
 );
 //Hardcoded inital value for display counters
     //TODO: add state machine to configure this through buttons
-wire [3:0] cfg_xxxm;
-wire [2:0] cfg_xxmx;
-wire [4:0] cfg_hhxx;
-assign cfg_xxxm = 4'b0;
-assign cfg_xxmx = 3'b0;
-assign cfg_hhxx = 5'b0;
+// wire [3:0] cfg_xxxm;
+// wire [2:0] cfg_xxmx;
+// wire [4:0] cfg_hhxx;
+// assign cfg_xxxm = 4'b0;
+// assign cfg_xxmx = 3'b0;
+// assign cfg_hhxx = 5'b0;
 
 // Counters for the displays and clock dividers
-   // Signals from counters to segment decoders 
+   // Signals from counters to segment decoders
 wire [3:0] val_hxxx;
 wire [3:0] val_xhxx;
 wire [3:0] val_xxmx;
 wire [3:0] val_xxxm;
 
+wire plus_1m;
+wire plus_1h;
+
+// Debouncers
+//PushButton_Debouncer bt_min(
+//    .clk   ( clk_crystal_i ), // system
+//    .PB    ( bt0           ), // glitch async active low button
+//    .PB_up ( plus_1m       )  // sync, bt released
+//    //.PB_state ( )
+//);
+
+debounce #
+(
+    .bounce_limit(128), // 7 bits internal reg
+    .width(2)
+)
+db_bntc
+(
+    .clk(clk_crystal_i),
+    .switch_in({bt1,bt0}),
+    .switch_out(),
+    .switch_rise(),
+    .switch_fall({plus_1h,plus_1m})
+);
+
+// PushButton_Debouncer bt_hour(
+//     .clk   ( clk_crystal_i ), // system
+//     .PB    ( bt1           ), // glitch async active low button
+//     .PB_up ( plus_1h       )  // sync, bt released
+//     //.PB_state ( )
+// );
+
 count10m inst_count10m (
     .rstn_i(rstn_i),
-    .clk1m_i(clk1m_int), 
+    .clk1m_i(clk1m_int),
     .clk10m_o(clk10m_int),
-    .ival_i(cfg_xxxm),
+    //.ival_i(cfg_xxxm),
+    .push_button_released( plus_1m ),
     .segment_o(val_xxxm)
 );
 
@@ -69,16 +103,17 @@ count60m inst_count60m (
     .rstn_i(rstn_i),
     .clk10m_i(clk10m_int),
     .clk60m_o(clk1h_int),
-    .ival_i(cfg_xxmx),
+    //.ival_i(cfg_xxmx),
     .segment_o(val_xxmx)
 );
 
 count24h inst_count24h (
     .rstn_i(rstn_i),
     .clk60m_i(clk1h_int),
-    .ival_i(cfg_hhxx),
-    .segment0_o(val_xhxx), 
-    .segment1_o(val_hxxx) 
+    //.ival_i(cfg_hhxx),
+    .push_button_released( plus_1h ),
+    .segment0_o(val_xhxx),
+    .segment1_o(val_hxxx)
 );
 
 

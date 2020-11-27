@@ -1,5 +1,5 @@
 //-----------------------------------------------------
-// ProjectName: ASIC watch 
+// ProjectName: ASIC watch
 // Description: 0 - 23 counter. 1 h increments
 //              It interfaces with 7-segment driver hh:xx
 //              Since we have to account for hx:xx to update xh:xx both are
@@ -11,15 +11,16 @@
 `timescale 1 ns / 1 ps
 
 `ifndef SYNT
-    `ifdef FORMAL 
+    `ifdef FORMAL
         `define ASSERTIONS
     `endif
 `endif
 
 module count24h (
     input wire rstn_i, // active low
-    input wire clk60m_i, // 1/3600 Hz 
-    input wire [4:0] ival_i, // Initial value
+    input wire clk60m_i, // 1/3600 Hz
+//    input wire [4:0] ival_i, // Initial value
+    input wire push_button_released,
     output reg [3:0] segment0_o, // fully encoded, one-hot decoder needed
                                     //xh:xx
     output reg [3:0] segment1_o // fully encoded, one-hot decoder needed
@@ -27,14 +28,14 @@ module count24h (
 );
 
 reg [4:0] count_int;
-always @(posedge clk60m_i, negedge rstn_i) begin : count_5bit
+always @(posedge clk60m_i, negedge rstn_i, push_button_released) begin : count_5bit
     if (!rstn_i) begin
-        count_int <= ival_i;
+        count_int <= 0;
     end else begin
-        if (count_int < 23) begin 
-            count_int <= count_int+1; 
+        if (count_int < 23 | push_button_released) begin
+            count_int <= count_int+1;
         end else begin
-            count_int <= 0; 
+            count_int <= 0;
         end
     end
 end
@@ -52,7 +53,7 @@ always @(*) begin : xhxx_gen
         segment0_o = xhxx_count;
     end else begin
     // for counter values 10 - 24: Bit 0 matches the one in  0-9 range
-        //  I don't see a patern for the others. I let tools OPT 
+        //  I don't see a patern for the others. I let tools OPT
         segment0_o[0] = xhxx_count[0];
         // lookup for the remaining fields
         case (count_int[3:1])

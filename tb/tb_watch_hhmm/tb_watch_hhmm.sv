@@ -20,8 +20,10 @@ parameter CLK_PERIOD      = 30517578;
 parameter CLK_HALF_PERIOD = CLK_PERIOD / 2;
 
 //*** Drive signals***
-reg clk_i; //32.768 KHz
+reg clk_crystal_i; //32.768 KHz
 reg rstn_i; // active low
+reg bt0;
+reg bt1;
 
 //*** Read signals***
 wire [6:0] segment_hxxx;
@@ -39,9 +41,13 @@ reg tb_fail = 0;
     );
 
 //***clk_gen***
-    initial clk_i = 1;
-    always #CLK_HALF_PERIOD clk_i = !clk_i;
+    initial clk_crystal_i = 1;
+    always #CLK_HALF_PERIOD clk_crystal_i = !clk_crystal_i;
 
+// init fake buttons states
+    initial bt0 = 0;
+    initial bt1 = 0;
+    
 //***task automatic reset_dut***
     task automatic reset_dut;
         begin
@@ -81,6 +87,18 @@ task automatic srun(input longint seconds);
             $display("*** srun %0d.",a);
             for(i=0;i<a;i++) begin
             #CLK_PERIOD;
+            if (i==7) begin
+                bt1 <= 1;
+            end
+            if (i==8) begin
+                bt1 <= 0;
+            end
+             if (i==9) begin
+                bt1 <= 1;
+            end
+             if (i==200) begin
+                bt1 <= 0;
+            end
             end
             $display("Done");
         end
