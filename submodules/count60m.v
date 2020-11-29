@@ -18,14 +18,14 @@ module count60m (
     input wire rstn_i, // active low
     input wire clk10m_i, // 1/600 Hz
     output reg clk60m_o, // 1/3600 Hz registered
-//    input wire [2:0] ival_i, // Initial value
+    input wire [2:0] ival_i, // Initial value
     output wire [3:0] segment_o // fully encoded, one-hot decoder needed
 );
 
 reg [2:0] count_int;
 always @(posedge clk10m_i, negedge rstn_i) begin : count_3bit
             if (!rstn_i) begin
-                count_int <= 0;
+                count_int <= ival_i;
             end else begin
                 if (count_int < 5) begin
                     count_int <= count_int+1;

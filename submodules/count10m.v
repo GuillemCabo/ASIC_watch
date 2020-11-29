@@ -18,17 +18,16 @@ module count10m (
     input wire rstn_i, // active low
     input wire clk1m_i, // 1/60 Hz
     output reg clk10m_o, // 1/600 Hz registered
-    //input wire [3:0] ival_i, // Initial value
-    input wire push_button_released,
+    input wire [3:0] ival_i, // Initial value
     output wire [3:0] segment_o // fully encoded, one-hot decoder needed
 );
 
 reg [3:0] count_int;
-always @(posedge clk1m_i, negedge rstn_i, push_button_released) begin : count_4bit
+always @(posedge clk1m_i, negedge rstn_i) begin : count_4bit
             if (!rstn_i) begin
-                count_int <= 0;
+                count_int <= ival_i;
             end else begin
-                if (count_int < 9 | push_button_released) begin
+                if (count_int < 9) begin
                     count_int <= count_int+1;
                 end else begin
                     count_int <= 0;
@@ -51,9 +50,4 @@ always @(posedge clk1m_i, negedge rstn_i) begin: clk_xhxx
             end
 end
 
-
 endmodule
-
-
-
-
